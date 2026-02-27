@@ -1,6 +1,9 @@
 export default function ParticipantsModal({ open, participants, onKick, onClose }) {
   if (!open) return null;
 
+  // Ensure participants is an array
+  const safeParticipants = Array.isArray(participants) ? participants : [];
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-20 flex items-center justify-center">
 
@@ -11,11 +14,11 @@ export default function ParticipantsModal({ open, participants, onKick, onClose 
           <button onClick={onClose}>✖</button>
         </div>
 
-        {participants.map((p) => (
-          <div key={p.id} className="flex justify-between mb-2 text-sm">
+        {safeParticipants.map((p) => (
+          <div key={p.id || p.name} className="flex justify-between mb-2 text-sm">
             <span>{p.name}</span>
             <button
-              onClick={() => onKick(p.id)}
+              onClick={() => onKick(p.name)}
               className="text-red-500"
             >
               Kick out

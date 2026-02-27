@@ -1,4 +1,6 @@
-export default function ParticipantsPopup({ participants = [], onClose }) {
+export default function ParticipantsPopup({ participants = [], onClose, onKick }) {
+  const safeParticipants = Array.isArray(participants) ? participants : [];
+
   return (
     <div className="fixed bottom-28 right-8 w-[340px] bg-white rounded-xl shadow-2xl border border-[#E2E2E8] overflow-hidden">
 
@@ -20,12 +22,15 @@ export default function ParticipantsPopup({ participants = [], onClose }) {
         </div>
 
         <div className="space-y-3">
-          {participants.length > 0 ? (
-            participants.map((user, index) => (
+          {safeParticipants.length > 0 ? (
+            safeParticipants.map((user, index) => (
               <div key={index} className="flex justify-between items-center">
-                <span>{user.name || user}</span>
+                <span>{user?.name || user}</span>
 
-                <button className="text-[#6D5DF6] text-xs font-medium hover:underline">
+                <button 
+                  onClick={() => onKick && onKick(user?.name || user)}
+                  className="text-[#6D5DF6] text-xs font-medium hover:underline"
+                >
                   Kick out
                 </button>
               </div>

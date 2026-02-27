@@ -1,4 +1,16 @@
 export default function PollCard({ poll, onVote, voted, timeLeft }) {
+  // Handle case where poll is not fully loaded
+  if (!poll || !poll.options || !poll.results) {
+    return <div className="text-center p-4">Loading poll...</div>;
+  }
+
+  const handleVote = (index) => {
+    console.log("PollCard: Vote clicked for index:", index, "voted:", voted);
+    if (!voted && onVote) {
+      onVote(index);
+    }
+  };
+
   const totalVotes = poll.results.reduce((a, b) => a + b.votes, 0);
   
   // Show answer only when teacher explicitly reveals it
@@ -33,7 +45,7 @@ export default function PollCard({ poll, onVote, voted, timeLeft }) {
           return (
             <div
               key={i}
-              onClick={() => !voted && onVote?.(i)}
+              onClick={() => handleVote(i)}
               className={`relative h-12 rounded-md overflow-hidden cursor-pointer ${
                 !showResults 
                   ? "border-2 border-[#6D5DF6] bg-[#F0EEFE]" :

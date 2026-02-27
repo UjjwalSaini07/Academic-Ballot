@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 
 export default function PollHistory() {
   const [polls, setPolls] = useState([]);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/poll/history")
+    api
+      .get("/api/poll/history")
       .then((res) => setPolls(res.data))
       .catch(() => setPolls([]));
   }, []);

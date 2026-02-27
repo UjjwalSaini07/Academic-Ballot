@@ -21,11 +21,14 @@ export default function ChatPopup({ socket, participants = [], onKick }) {
   }, [socket]);
 
   const sendMessage = () => {
-    if (!input.trim()) return;
+    if (!socket || !input.trim()) return;
     socket.emit("chat_message", input);
     setMessages((prev) => [...prev, input]);
     setInput("");
   };
+
+  // Safe access to participants array
+  const safeParticipants = Array.isArray(participants) ? participants : [];
 
   return (
     <div className="fixed bottom-8 right-8 z-50">
@@ -76,17 +79,19 @@ export default function ChatPopup({ socket, participants = [], onKick }) {
                   <span>Action</span>
                 </div>
 
-                {participants.length > 0 ? (
-                  participants.map((user, i) => (
+                {safeParticipants.length > 0 ? (
+                  safeParticipants.map((user, i) => (
                     <div key={i} className="flex justify-between items-center">
-                      <span>{user.name || user}</span>
+                      <span>{user?.name || user}</span>
 
-                      <button
-                        onClick={() => onKick?.(user.id)}
-                        className="text-[#6D5DF6] text-xs font-medium hover:underline"
-                      >
-                        Kick out
-                      </button>
+                      {onKick && (
+                        <button
+                          onClick={() => onKick(user?.name || user)}
+                          className="text-[#6D5DF6] text-xs font-medium hover:underline"
+                        >
+                          Kick out
+                        </button>
+                      )}
                     </div>
                   ))
                 ) : (
