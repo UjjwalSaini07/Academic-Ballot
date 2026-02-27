@@ -1,39 +1,46 @@
 export default function PollCard({ poll, onVote, voted }) {
-
   const totalVotes = poll.results.reduce((a, b) => a + b.votes, 0);
 
   return (
-    <div className="bg-white p-6 rounded-xl w-[600px] shadow-sm">
+    <div className="w-[700px] bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 
-      <div className="bg-gray-800 text-white p-3 rounded-t-lg mb-4">
+      <div className="bg-gray-700 text-white px-5 py-3 text-sm font-medium">
         {poll.question}
       </div>
 
-      {poll.options.map((opt, i) => {
+      <div className="p-6 space-y-4">
 
-        const votes = poll.results[i]?.votes || 0;
-        const percentage = totalVotes === 0
-          ? 0
-          : Math.round((votes / totalVotes) * 100);
+        {poll.options.map((opt, i) => {
+          const votes = poll.results[i]?.votes || 0;
+          const percentage =
+            totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100);
 
-        return (
-          <div
-            key={i}
-            onClick={() => !voted && onVote(i)}
-            className="mb-3 border rounded-lg overflow-hidden cursor-pointer"
-          >
+          return (
             <div
-              className="bg-primary text-white p-3 transition-all"
-              style={{ width: `${percentage}%` }}
+              key={i}
+              onClick={() => !voted && onVote?.(i)}
+              className="relative h-12 bg-[#E7E8F2] rounded-md overflow-hidden cursor-pointer"
             >
-              {opt}
+              <div
+                className="absolute left-0 top-0 h-full bg-gradient-to-r from-[#7C6CF4] to-[#5B4DE3] transition-all duration-500"
+                style={{ width: `${percentage}%` }}
+              />
+
+              <div className="absolute inset-0 flex items-center justify-between px-4 text-sm font-medium">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-white rounded-full text-xs flex items-center justify-center text-[#6D5DF6] font-semibold">
+                    {i + 1}
+                  </div>
+                  {opt}
+                </div>
+
+                <span>{percentage}%</span>
+              </div>
             </div>
-            <div className="absolute right-4 -mt-8 text-sm font-semibold">
-              {percentage}%
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+
+      </div>
     </div>
   );
 }
