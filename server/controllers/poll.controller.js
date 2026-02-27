@@ -134,15 +134,26 @@ exports.checkKicked = async (req, res) => {
 exports.vote = async (req, res) => {
   try {
     await ensureDbConnection();
+    
+    console.log("Vote request received:", req.body);
+    
     const { pollId, studentName, optionIndex } = req.body;
+    
+    if (!pollId || !studentName || optionIndex === undefined) {
+      return res.status(400).json({ error: "Missing required fields: pollId, studentName, optionIndex" });
+    }
+    
     const poll = await service.vote(pollId, studentName, optionIndex);
+    
     // Emit socket event for real-time updates
     const io = req.app.get("io");
     if (io) {
       io.emit("vote_update", poll);
     }
+    
     res.json(poll);
   } catch (e) {
+    console.error("Vote error:", e);
     res.status(400).json({ error: e.message });
   }
 };
