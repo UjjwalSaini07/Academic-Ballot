@@ -1,5 +1,5 @@
 const express = require("express");
-require("dotenv");
+require("dotenv").config();
 const http = require("http");
 const cors = require("cors");
 const { Server } = require("socket.io");

@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Poll = require("../models/poll.model");
 const Vote = require("../models/vote.moel");
 
@@ -51,12 +52,38 @@ class PollService {
   }
 
   async vote(data) {
-    console.log("Vote service called with:", data);
+    console.log("=== VOTE SERVICE ===");
+    console.log("Input data:", data);
+    console.log("Poll ID type:", typeof data.pollId);
+    console.log("Poll ID:", data.pollId);
 
-    const poll = await Poll.findById(data.pollId);
-    console.log("Found poll:", poll);
+    // Try to find by different methods
+    let poll;
+    try {
+      // Try with mongoose findById (it handles string conversion)
+      poll = await Poll.findById(data.pollId);
+      console.log("findById result:", poll);
+    } catch (e) {
+      console.log("findById error:", e.message);
+    }
+    
+    if (!poll) {
+      // Try with explicit ObjectId
+      try {
+        const mongoose = require("mongoose");
+        const ObjectId = mongoose.Types.ObjectId;
+        const objectId = new ObjectId(data.pollId);
+        poll = await Poll.findById(objectId);
+        console.log("Explicit ObjectId result:", poll);
+      } catch (e) {
+        console.log("ObjectId error:", e.message);
+      }
+    }
 
     if (!poll) {
+      // Try finding all polls to see what's in DB
+      const allPolls = await Poll.find({});
+      console.log("All polls in DB:", allPolls.map(p => ({ id: p._id, question: p.question, status: p.status })));
       throw new Error("Poll not found");
     }
     
