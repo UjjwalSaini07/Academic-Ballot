@@ -1,16 +1,29 @@
+const mongoose = require("mongoose");
 const service = require("../services/poll.service");
 const Participant = require("../models/participant.model");
 
+// Helper to ensure database is connected
+const ensureDbConnection = async () => {
+  if (mongoose.connection.readyState !== 1) {
+    const connectDB = require("../config/db");
+    await connectDB();
+  }
+};
+
 exports.getActive = async (req, res) => {
+  await ensureDbConnection();
   res.json(await service.getActive());
 };
 
 exports.history = async (req, res) => {
+  await ensureDbConnection();
   res.json(await service.history());
 };
 
 exports.create = async (req, res) => {
   try {
+    await ensureDbConnection();
+    console.log("Creating poll with data:", req.body);
     const poll = await service.createPoll(req.body);
     // Emit socket event after successful creation
     const io = req.app.get("io");
@@ -19,12 +32,14 @@ exports.create = async (req, res) => {
     }
     res.status(201).json(poll);
   } catch (e) {
+    console.error("Poll creation error:", e);
     res.status(400).json({ error: e.message });
   }
 };
 
 exports.complete = async (req, res) => {
   try {
+    await ensureDbConnection();
     const poll = await service.completePoll(req.params.id);
     const io = req.app.get("io");
     if (io) {
@@ -38,6 +53,7 @@ exports.complete = async (req, res) => {
 
 exports.revealAnswer = async (req, res) => {
   try {
+    await ensureDbConnection();
     const poll = await service.revealAnswer(req.params.id, req.body.correctOption);
     const io = req.app.get("io");
     if (io) {
@@ -51,6 +67,7 @@ exports.revealAnswer = async (req, res) => {
 
 exports.getParticipants = async (req, res) => {
   try {
+    await ensureDbConnection();
     const participants = await Participant.find({ isActive: true });
     res.json(participants.map(p => ({ id: p.socketId, name: p.name })));
   } catch (e) {
@@ -60,6 +77,7 @@ exports.getParticipants = async (req, res) => {
 
 exports.checkKicked = async (req, res) => {
   try {
+    await ensureDbConnection();
     const { name } = req.query;
     const participant = await Participant.findOne({ name, isKicked: true });
     res.json({ isKicked: !!participant });
@@ -70,6 +88,7 @@ exports.checkKicked = async (req, res) => {
 
 exports.vote = async (req, res) => {
   try {
+    await ensureDbConnection();
     const { pollId, studentName, optionIndex } = req.body;
     const poll = await service.vote(pollId, studentName, optionIndex);
     // Emit socket event for real-time updates
@@ -85,6 +104,7 @@ exports.vote = async (req, res) => {
 
 exports.kick = async (req, res) => {
   try {
+    await ensureDbConnection();
     const { name } = req.body;
     const participant = await Participant.findOne({ name });
     if (participant) {

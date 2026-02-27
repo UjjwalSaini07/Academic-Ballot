@@ -6,15 +6,41 @@ let dbStatus = {
   connectionTime: null
 };
 
+let cachedConnection = null;
+
 const connectDB = async () => {
+  // Return cached connection if already connected
+  if (mongoose.connection.readyState === 1) {
+    dbStatus = {
+      connected: true,
+      error: null,
+      connectionTime: mongoose.connection.connInfo?.connectionTime || new Date().toISOString()
+    };
+    return mongoose.connection;
+  }
+
+  // If connection is in progress, wait for it
+  if (mongoose.connection.readyState === 2) {
+    return new Promise((resolve, reject) => {
+      mongoose.connection.once('open', () => resolve(mongoose.connection));
+      mongoose.connection.once('error', (err) => reject(err));
+    });
+  }
+
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+    if (!mongoUri) {
+      throw new Error("MongoDB URI not configured. Set MONGO_URI or MONGODB_URI environment variable.");
+    }
+    
+    await mongoose.connect(mongoUri);
     dbStatus = {
       connected: true,
       error: null,
       connectionTime: new Date().toISOString()
     };
     console.log("MongoDB Connected");
+    return mongoose.connection;
   } catch (err) {
     dbStatus = {
       connected: false,
@@ -22,6 +48,7 @@ const connectDB = async () => {
       connectionTime: null
     };
     console.error("DB Error:", err.message);
+    throw err;
   }
 };
 
