@@ -1,10 +1,10 @@
 import { useEffect, useState, useCallback } from "react";
-import axios from "axios";
 import { useSocket } from "../hooks/useSocket";
 import { usePollTimer } from "../hooks/usePollTimer";
 import PollCard from "../components/PollCard";
 import ChatPopup from "../components/ChatPopup";
 import { useNavigate } from "react-router-dom";
+import api, { API_URL } from "../api";
 
 export default function StudentDashboard() {
   const socket = useSocket();
@@ -15,10 +15,25 @@ export default function StudentDashboard() {
   const [voted, setVoted] = useState(false);
   const [kicked, setKicked] = useState(false);
 
+  // Call usePollTimer at the top level - MUST be before any early returns or conditional hooks
+  const timeLeft = usePollTimer(poll?.startTime || 0, poll?.duration || 0);
+
+  useEffect(() => {
+    const registerStudent = async () => {
+      if (!name) return;
+      try {
+        await api.post("/api/poll/register", { name });
+      } catch (err) {
+        console.log("Registration note:", err.response?.data?.error);
+      }
+    };
+    registerStudent();
+  }, [name]);
+
   // Fetch active poll
   const fetchPoll = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/poll/active");
+      const res = await api.get("/api/poll/active");
       setPoll(res.data);
     } catch (err) {
       setPoll(null);
@@ -27,7 +42,7 @@ export default function StudentDashboard() {
 
   const checkKicked = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/poll/check-kicked", {
+      const res = await api.get("/api/poll/check-kicked", {
         params: { name }
       });
       if (res.data.isKicked) {
@@ -39,21 +54,25 @@ export default function StudentDashboard() {
     }
   }, [name, navigate]);
 
-  // Call usePollTimer at the top level to follow Rules of Hooks
-  const timeLeft = usePollTimer(poll?.startTime || 0, poll?.duration || 0);
+  // Check if we're in production mode
+  const isProduction = 
+    import.meta.env.VITE_API_URL?.includes("vercel.app") || 
+    API_URL?.includes("vercel.app");
 
-  // Initial fetch and periodic polling as fallback
+  // HTTP-based polling for Vercel compatibility (sockets don't work on serverless)
   useEffect(() => {
     checkKicked();
     fetchPoll();
+    // Poll every 2 seconds for real-time updates (works on Vercel)
     const interval = setInterval(() => {
       fetchPoll();
-    }, 7000); // Poll every 3 seconds as fallback
+      checkKicked();
+    }, 2000);
     return () => clearInterval(interval);
   }, [fetchPoll, checkKicked]);
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket || isProduction) return;
 
     socket.emit("join", name);
 
@@ -172,14 +191,24 @@ export default function StudentDashboard() {
     );
   }
 
-  const vote = (index) => {
-    if (!socket) return;
-    socket.emit("vote", {
-      pollId: poll._id,
-      studentName: name,
-      optionIndex: index,
-    });
-    setVoted(true);
+  const vote = async (index) => {
+    console.log("Voting for option:", index, "poll:", poll?._id);
+    try {
+      // Use HTTP API for voting (works on Vercel serverless)
+      const res = await api.post("/api/poll/vote", {
+        pollId: poll._id,
+        studentName: name,
+        optionIndex: index,
+      });
+      console.log("Vote successful:", res.data);
+      setPoll(res.data);
+      setVoted(true);
+    } catch (err) {
+      console.error("Vote error:", err.response?.data || err.message);
+      if (err.response?.data?.error === "Time expired") {
+        fetchPoll(); // Refresh poll state when time expires
+      }
+    }
   };
 
   return (

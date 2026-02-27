@@ -1,14 +1,32 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import api from "../api";
 
 export default function StudentOnboarding() {
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
     if (!name.trim()) return;
-    sessionStorage.setItem("studentName", name);
-    navigate("/student/dashboard");
+    
+    setLoading(true);
+    try {
+      // Register student via HTTP API (works without sockets)
+      await api.post("/api/poll/register", { name });
+      sessionStorage.setItem("studentName", name);
+      navigate("/student/dashboard");
+    } catch (err) {
+      console.error("Registration error:", err.response?.data || err.message);
+      if (err.response?.data?.error === "You have been kicked out") {
+        alert("You have been kicked out by the teacher. Please contact your teacher.");
+      } else {
+        // Still allow joining even if registration fails (for local dev)
+        sessionStorage.setItem("studentName", name);
+        navigate("/student/dashboard");
+      }
+    }
+    setLoading(false);
   };
 
   return (

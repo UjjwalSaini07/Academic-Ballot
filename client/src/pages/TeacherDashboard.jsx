@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useSocket } from "../hooks/useSocket";
 import ParticipantsModal from "../components/ParticipantsModal";
 import ChatPopup from "../components/ChatPopup";
-import axios from "axios";
+import api, { API_URL } from "../api";
 import { useNavigate } from "react-router-dom";
 
 export default function TeacherDashboard() {
@@ -21,7 +21,7 @@ export default function TeacherDashboard() {
   // Fetch active poll
   const fetchPoll = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/poll/active");
+      const res = await api.get("/api/poll/active");
       setPoll(res.data);
     } catch (err) {
       setPoll(null);
@@ -31,23 +31,39 @@ export default function TeacherDashboard() {
   // Fetch participants
   const fetchParticipants = useCallback(async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/poll/participants");
+      const res = await api.get("/api/poll/participants");
       setParticipants(res.data);
     } catch (err) {
       console.error("Failed to fetch participants:", err);
     }
   }, []);
 
-  // Initial fetch and periodic polling as fallback
+  // Initial fetch and periodic polling (works on Vercel serverless)
   useEffect(() => {
     fetchPoll();
     fetchParticipants();
+    // Poll every 2 seconds for real-time updates
     const pollInterval = setInterval(() => {
       fetchPoll();
       fetchParticipants();
-    }, 3000);
+    }, 2000);
     return () => clearInterval(pollInterval);
   }, [fetchPoll, fetchParticipants]);
+
+  // Socket events only for chat (not essential for poll functionality)
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleChatMessage = (msg) => {
+      // Chat handled by ChatPopup
+    };
+
+    socket.on("chat_message", handleChatMessage);
+
+    return () => {
+      socket.off("chat_message", handleChatMessage);
+    };
+  }, [socket]);
 
   useEffect(() => {
     if (!socket) return;
@@ -95,33 +111,40 @@ export default function TeacherDashboard() {
 
     setIsCreating(true);
 
-    // Try socket first
-    if (socket) {
-      socket.emit("create_poll", {
-        question,
+    // Use HTTP API (works on Vercel serverless)
+    try {
+      const pollData = {
+        question: question.trim(),
         options: filledOptions,
         duration,
-        correctOption,
+        correctOption
+      };
+      
+      console.log("API URL:", API_URL);
+      console.log("Creating poll with:", pollData);
+      
+      const res = await api.post("/api/poll", pollData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-    } else {
-      // Fallback to HTTP
-      try {
-        const res = await axios.post("http://localhost:5000/api/poll", {
-          question,
-          options: filledOptions,
-          duration,
-          correctOption,
-        });
-        setPoll(res.data);
-      } catch (err) {
-        alert(err.response?.data?.error || "Failed to create poll");
-      }
-      setIsCreating(false);
+      console.log("Poll created:", res.data);
+      setPoll(res.data);
+    } catch (err) {
+      console.error("Poll creation error:", err.response?.data || err.message);
+      alert(err.response?.data?.error || "Failed to create poll");
     }
+    setIsCreating(false);
   };
 
-  const kick = (id) => {
-    socket.emit("kick", id);
+  const kick = async (name) => {
+    try {
+      await api.post("/api/poll/kick", { name });
+      // Refresh participants after kick
+      fetchParticipants();
+    } catch (err) {
+      console.error("Failed to kick:", err);
+    }
   };
 
   return (
@@ -267,19 +290,36 @@ export default function TeacherDashboard() {
       {poll && (
         <div className="w-[720px]">
           <div className="flex justify-between items-center mb-4">
-            <button
-              onClick={() => navigate("/history")}
-              className="text-[#6D5DF6] text-sm font-medium"
-            >
-              View Poll History
-            </button>
+            <div></div>
 
-            <button
-              onClick={() => setShowParticipants(true)}
-              className="text-[#6D5DF6] text-sm font-medium"
-            >
-              Participants ({participants.length})
-            </button>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => navigate("/history")}
+                className="flex items-center gap-2 text-[#8F64E1] text-sm font-medium"
+              >
+                <svg 
+                  width="18" 
+                  height="18" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                  <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+                View Poll History
+              </button>
+
+              <button
+                onClick={() => setShowParticipants(true)}
+                className="text-[#6D5DF6] text-sm font-medium"
+              >
+                Participants ({participants.length})
+              </button>
+            </div>
           </div>
 
           <h2 className="text-[18px] font-semibold mb-3">Question</h2>
@@ -382,8 +422,8 @@ export default function TeacherDashboard() {
                 onClick={async () => {
                   if (poll?._id && poll.correctOption >= 0) {
                     try {
-                      const res = await axios.put(
-                        `http://localhost:5000/api/poll/${poll._id}/reveal`,
+                      const res = await api.put(
+                        `/api/poll/${poll._id}/reveal`,
                         { correctOption: poll.correctOption }
                       );
                       setPoll(res.data);
@@ -403,8 +443,8 @@ export default function TeacherDashboard() {
               onClick={async () => {
                 if (poll?._id) {
                   try {
-                    await axios.put(
-                      `http://localhost:5000/api/poll/${poll._id}/complete`,
+                    await api.put(
+                      `/api/poll/${poll._id}/complete`,
                     );
                   } catch (err) {
                     console.error("Failed to complete poll:", err);
