@@ -1,22 +1,26 @@
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,jsx}"
-  ],
+  content: ["./index.html", "./src/**/*.{js,jsx}"],
   theme: {
     extend: {
       colors: {
-        primary: "#6C5DD3",
-        primaryLight: "#7C6CF5",
-        background: "#F8F9FD",
-        borderLight: "#E6E8F0",
-        textMuted: "#6B7280"
+        bg: "#F5F6FA",
+        card: "#FFFFFF",
+        primaryStart: "#7B61FF",
+        primaryEnd: "#5A4FCF",
+        primaryBorder: "#6C5DD3",
+        mutedText: "#8E8EA9",
+        darkText: "#111827",
+        pollBg: "#F2F3F8",
+        pollTrack: "#E7E8F2",
+        pollHeader: "#3F3F46"
       },
       borderRadius: {
-        xl2: "20px"
+        card: "16px",
+        pill: "9999px"
       },
       boxShadow: {
-        card: "0px 10px 30px rgba(0,0,0,0.04)"
+        card: "0px 12px 30px rgba(0,0,0,0.05)",
+        modal: "0px 20px 60px rgba(0,0,0,0.15)"
       }
     }
   }

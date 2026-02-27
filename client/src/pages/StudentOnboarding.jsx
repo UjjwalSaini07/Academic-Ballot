@@ -2,44 +2,56 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function StudentOnboarding() {
-
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
   const handleContinue = () => {
+    if (!name.trim()) return;
     sessionStorage.setItem("studentName", name);
     navigate("/student/dashboard");
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-
-      <div className="bg-white p-12 rounded-2xl w-[600px] text-center shadow-sm">
-
-        <h2 className="text-3xl font-bold mb-4">
-          Let’s Get Started
-        </h2>
-
-        <p className="text-gray-500 mb-8">
-          Enter your name to join the poll
-        </p>
-
-        <input
-          className="w-full border rounded-lg p-3 mb-8"
-          placeholder="Enter your name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-
-        <button
-          onClick={handleContinue}
-          className="bg-primary text-white px-10 py-3 rounded-full"
-        >
-          Continue
-        </button>
-
+    <div className="min-h-screen bg-[#F5F6F8] flex flex-col items-center justify-center px-4">
+      <div className="mb-6">
+        <span className="px-4 py-1 text-xs font-medium rounded-full text-white bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]">
+          Intervue Poll
+        </span>
       </div>
 
+      <h1 className="text-[28px] font-semibold text-center">
+        Let’s Get Started
+      </h1>
+
+      <p className="text-gray-500 text-center text-sm mt-3 max-w-[520px] leading-relaxed">
+        If you’re a student, you’ll be able to{" "}
+        <span className="font-medium text-black">submit your answers</span>,
+        participate in live polls, and see how your responses compare with your
+        classmates
+      </p>
+
+      <div className="w-full max-w-[420px] mt-10">
+        <label className="block text-sm font-medium mb-2">
+          Enter your Name
+        </label>
+
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Enter your name"
+          className="w-full h-[44px] px-4 rounded-lg border border-[#D9D9E8] bg-[#ECECEC] 
+          text-sm focus:outline-none focus:border-[#6D5DF6]"
+        />
+      </div>
+
+      <button
+        onClick={handleContinue}
+        className="mt-10 px-12 py-3 rounded-full text-white text-sm font-medium
+        bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]
+        shadow-md hover:opacity-95 transition"
+      >
+        Continue
+      </button>
     </div>
   );
 }

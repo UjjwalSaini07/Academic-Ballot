@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { useSocket } from "../hooks/useSocket";
-import PollCard from "../components/PollCard";
 import ParticipantsModal from "../components/ParticipantsModal";
 import ChatPopup from "../components/ChatPopup";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function TeacherDashboard() {
-
   const socket = useSocket();
   const navigate = useNavigate();
 
@@ -19,8 +17,9 @@ export default function TeacherDashboard() {
   const [showParticipants, setShowParticipants] = useState(false);
 
   useEffect(() => {
-    axios.get("http://localhost:5000/api/poll/active")
-      .then(res => setPoll(res.data));
+    axios
+      .get("http://localhost:5000/api/poll/active")
+      .then((res) => setPoll(res.data));
   }, []);
 
   useEffect(() => {
@@ -29,14 +28,13 @@ export default function TeacherDashboard() {
     socket.on("participants", setParticipants);
     socket.on("poll_created", setPoll);
     socket.on("vote_update", setPoll);
-
   }, [socket]);
 
   const createPoll = () => {
     socket.emit("create_poll", {
       question,
       options,
-      duration
+      duration,
     });
   };
 
@@ -45,79 +43,152 @@ export default function TeacherDashboard() {
   };
 
   return (
-    <div className="min-h-screen p-12">
-
+    <div className="min-h-screen bg-[#F5F6F8] flex flex-col items-center pt-16 relative">
       {!poll && (
-        <div className="bg-white p-8 rounded-xl w-[600px] mx-auto shadow-sm">
+        <div className="w-[720px] bg-white rounded-[16px] shadow-sm border border-[#E2E2E8] p-8">
+          <div className="inline-block px-4 py-1 text-xs font-medium bg-[#6D5DF6] text-white rounded-full mb-6">
+            Intervue Poll
+          </div>
 
-          <h2 className="text-2xl font-bold mb-4">Let’s Get Started</h2>
+          <h2 className="text-2xl font-semibold mb-2">Let’s Get Started</h2>
 
-          <input
-            placeholder="Enter your question"
-            className="border p-3 w-full mb-4 rounded"
+          <p className="text-gray-500 text-sm mb-6">
+            Create a question and let students vote live.
+          </p>
+
+          <label className="text-sm font-medium">Enter your question</label>
+
+          <textarea
+            className="w-full mt-2 h-28 rounded-lg border border-[#D9D9E8] px-4 py-3 text-sm resize-none focus:outline-none focus:border-[#6D5DF6]"
+            placeholder="Type your question..."
             value={question}
             onChange={(e) => setQuestion(e.target.value)}
           />
 
-          {options.map((opt, i) => (
-            <input
-              key={i}
-              placeholder={`Option ${i + 1}`}
-              className="border p-3 w-full mb-3 rounded"
-              value={opt}
-              onChange={(e) => {
-                const copy = [...options];
-                copy[i] = e.target.value;
-                setOptions(copy);
-              }}
-            />
-          ))}
+          <div className="mt-8 space-y-4">
+            {options.map((opt, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="w-6 h-6 rounded-full bg-[#6D5DF6] text-white flex items-center justify-center text-xs font-medium">
+                  {i + 1}
+                </div>
+
+                <input
+                  className="flex-1 border border-[#D9D9E8] rounded-lg h-11 px-3 text-sm focus:outline-none focus:border-[#6D5DF6]"
+                  placeholder={`Option ${i + 1}`}
+                  value={opt}
+                  onChange={(e) => {
+                    const copy = [...options];
+                    copy[i] = e.target.value;
+                    setOptions(copy);
+                  }}
+                />
+              </div>
+            ))}
+          </div>
 
           <button
             onClick={() => setOptions([...options, ""])}
-            className="text-primary text-sm mb-4"
+            className="text-[#6D5DF6] text-sm mt-4"
           >
             + Add option
           </button>
 
-          <button
-            onClick={createPoll}
-            className="bg-primary text-white px-6 py-3 rounded-full"
-          >
-            Ask Question
-          </button>
+          <div className="mt-8">
+            <label className="text-sm font-medium">Duration (seconds)</label>
 
+            <input
+              type="number"
+              value={duration}
+              onChange={(e) => setDuration(Number(e.target.value))}
+              className="w-32 mt-2 border border-[#D9D9E8] rounded-lg h-10 px-3 text-sm focus:outline-none focus:border-[#6D5DF6]"
+            />
+          </div>
+
+          <div className="flex justify-end mt-10">
+            <button
+              onClick={createPoll}
+              className="px-12 py-3 rounded-full text-white text-sm font-medium
+              bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]
+              shadow-md hover:opacity-95 transition"
+            >
+              Ask Question
+            </button>
+          </div>
         </div>
       )}
 
       {poll && (
-        <div className="flex flex-col items-center">
-
-          <div className="flex justify-between w-[600px] mb-4">
+        <div className="w-[720px]">
+          <div className="flex justify-between items-center mb-4">
             <button
               onClick={() => navigate("/history")}
-              className="text-primary"
+              className="text-[#6D5DF6] text-sm font-medium"
             >
               View Poll History
             </button>
 
             <button
               onClick={() => setShowParticipants(true)}
-              className="text-primary"
+              className="text-[#6D5DF6] text-sm font-medium"
             >
-              Participants
+              Participants ({participants.length})
             </button>
           </div>
 
-          <PollCard poll={poll} />
+          <h2 className="text-[18px] font-semibold mb-3">Question</h2>
 
-          <button
-            onClick={() => setPoll(null)}
-            className="bg-primary text-white px-6 py-3 rounded-full mt-6"
-          >
-            + Ask a new question
-          </button>
+          <div className="rounded-[12px] border border-[#CFCFE3] overflow-hidden bg-white">
+            <div className="bg-[#4A4A4A] text-white px-5 py-3 text-[14px] font-medium">
+              {poll.question}
+            </div>
 
+            <div className="p-4 space-y-3">
+              {poll.options.map((opt, index) => {
+                const totalVotes = poll.results.reduce(
+                  (a, b) => a + b.votes,
+                  0,
+                );
+                const votes = poll.results[index]?.votes || 0;
+                const percent =
+                  totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100);
+
+                return (
+                  <div
+                    key={index}
+                    className="relative h-[44px] rounded-[8px] border border-[#D9D9E8] overflow-hidden"
+                  >
+                    <div
+                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]"
+                      style={{ width: `${percent}%` }}
+                    />
+
+                    <div className="relative flex items-center justify-between h-full px-4 text-[14px]">
+                      <div className="flex items-center gap-3">
+                        <div className="w-6 h-6 rounded-full bg-[#6D5DF6] text-white flex items-center justify-center text-[12px] font-medium">
+                          {index + 1}
+                        </div>
+
+                        <span className="font-medium">{opt}</span>
+                      </div>
+
+                      <div className="bg-white border border-[#6D5DF6] text-[#6D5DF6] px-3 py-[2px] rounded-[6px] text-[12px] font-semibold">
+                        {percent}%
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={() => setPoll(null)}
+              className="px-6 py-3 rounded-full text-white font-medium bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF] shadow-md hover:opacity-90 transition"
+            >
+              + Ask a new question
+            </button>
+          </div>
         </div>
       )}
 
@@ -128,8 +199,7 @@ export default function TeacherDashboard() {
         onClose={() => setShowParticipants(false)}
       />
 
-      <ChatPopup socket={socket} />
-
+      <ChatPopup socket={socket} participants={participants} onKick={kick} />
     </div>
   );
 }
