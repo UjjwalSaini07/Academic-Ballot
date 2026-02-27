@@ -10,7 +10,7 @@ export default function RoleSelection() {
       <div className="text-center">
 
         <div className="inline-block px-4 py-1 text-xs font-medium bg-[#6D5DF6] text-white rounded-full mb-6">
-          Intervue Poll
+          ✦ Intervue Poll
         </div>
 
         <h1 className="text-4xl font-semibold text-gray-900 mb-2">

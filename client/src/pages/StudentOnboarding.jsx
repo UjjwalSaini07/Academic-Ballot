@@ -15,7 +15,7 @@ export default function StudentOnboarding() {
     <div className="min-h-screen bg-[#F5F6F8] flex flex-col items-center justify-center px-4">
       <div className="mb-6">
         <span className="px-4 py-1 text-xs font-medium rounded-full text-white bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]">
-          Intervue Poll
+          ✦ Intervue Poll
         </span>
       </div>
 
