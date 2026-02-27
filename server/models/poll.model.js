@@ -6,6 +6,7 @@ const pollSchema = new mongoose.Schema({
   duration: Number,
   startTime: Number,
   status: { type: String, default: "active" },
+  correctOption: { type: Number, default: -1 }, // -1 means not revealed yet
   results: [
     {
       optionIndex: Number,

@@ -4,9 +4,8 @@ const Vote = require("../models/vote.moel");
 class PollService {
 
   async createPoll(data) {
-
-    const active = await Poll.findOne({ status: "active" });
-    if (active) throw new Error("Active poll already exists");
+    // Complete any existing active poll first
+    await Poll.updateMany({ status: "active" }, { status: "completed" });
 
     const results = data.options.map((_, i) => ({
       optionIndex: i,
@@ -16,9 +15,20 @@ class PollService {
     const poll = await Poll.create({
       ...data,
       startTime: Date.now(),
+      correctOption: data.correctOption !== undefined ? data.correctOption : -1,
       results
     });
 
+    return poll;
+  }
+
+  async revealAnswer(id, correctOption) {
+    const poll = await Poll.findByIdAndUpdate(
+      id,
+      { correctOption },
+      { new: true }
+    );
+    if (!poll) throw new Error("Poll not found");
     return poll;
   }
 

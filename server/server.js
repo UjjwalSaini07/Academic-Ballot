@@ -19,6 +19,9 @@ app.use("/api/poll", routes);
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
+// Make io available to controllers
+app.set("io", io);
+
 pollSocket(io);
 
 server.listen(5000, () => console.log("Server running on 5000"));
