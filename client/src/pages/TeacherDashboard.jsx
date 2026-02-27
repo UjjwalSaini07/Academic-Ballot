@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useSocket } from "../hooks/useSocket";
 import ParticipantsModal from "../components/ParticipantsModal";
 import ChatPopup from "../components/ChatPopup";
@@ -12,30 +12,107 @@ export default function TeacherDashboard() {
   const [question, setQuestion] = useState("");
   const [options, setOptions] = useState(["", ""]);
   const [duration, setDuration] = useState(60);
+  const [correctOption, setCorrectOption] = useState(-1);
   const [poll, setPoll] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [showParticipants, setShowParticipants] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/poll/active")
-      .then((res) => setPoll(res.data));
+  // Fetch active poll
+  const fetchPoll = useCallback(async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/poll/active");
+      setPoll(res.data);
+    } catch (err) {
+      setPoll(null);
+    }
   }, []);
+
+  // Fetch participants
+  const fetchParticipants = useCallback(async () => {
+    try {
+      // Participants are fetched via socket, but we can also poll as fallback
+    } catch (err) {
+      console.error("Failed to fetch participants:", err);
+    }
+  }, []);
+
+  // Initial fetch and periodic polling as fallback
+  useEffect(() => {
+    fetchPoll();
+    const pollInterval = setInterval(fetchPoll, 3000);
+    return () => clearInterval(pollInterval);
+  }, [fetchPoll]);
 
   useEffect(() => {
     if (!socket) return;
 
-    socket.on("participants", setParticipants);
-    socket.on("poll_created", setPoll);
-    socket.on("vote_update", setPoll);
+    const handleParticipants = (data) => setParticipants(data);
+    const handlePollCreated = (newPoll) => {
+      setPoll(newPoll);
+      setIsCreating(false);
+      // Also reset form
+      setQuestion("");
+      setOptions(["", ""]);
+      setDuration(60);
+      setCorrectOption(-1);
+    };
+    const handleVoteUpdate = (updatedPoll) => setPoll(updatedPoll);
+    const handleError = (msg) => {
+      alert(msg);
+      setIsCreating(false);
+    };
+
+    socket.on("participants", handleParticipants);
+    socket.on("poll_created", handlePollCreated);
+    socket.on("vote_update", handleVoteUpdate);
+    socket.on("error_message", handleError);
+
+    return () => {
+      socket.off("participants", handleParticipants);
+      socket.off("poll_created", handlePollCreated);
+      socket.off("vote_update", handleVoteUpdate);
+      socket.off("error_message", handleError);
+    };
   }, [socket]);
 
-  const createPoll = () => {
-    socket.emit("create_poll", {
-      question,
-      options,
-      duration,
-    });
+  const createPoll = async () => {
+    // Validate inputs
+    if (!question.trim()) {
+      alert("Please enter a question");
+      return;
+    }
+    const filledOptions = options.filter(opt => opt.trim() !== "");
+    if (filledOptions.length < 2) {
+      alert("Please add at least 2 options");
+      return;
+    }
+    
+    setIsCreating(true);
+    
+    // Try socket first
+    if (socket) {
+      socket.emit("create_poll", {
+        question,
+        options: filledOptions,
+        duration,
+        correctOption,
+      });
+    } else {
+      // Fallback to HTTP
+      try {
+        const res = await axios.post("http://localhost:5000/api/poll", {
+          question,
+          options: filledOptions,
+          duration,
+          correctOption,
+        });
+        setPoll(res.data);
+      } catch (err) {
+        alert(err.response?.data?.error || "Failed to create poll");
+      }
+      setIsCreating(false);
+    }
   };
 
   const kick = (id) => {
@@ -82,6 +159,31 @@ export default function TeacherDashboard() {
                     setOptions(copy);
                   }}
                 />
+
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-500">Is it Correct?</span>
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name={`correct-${i}`}
+                      checked={correctOption === i}
+                      onChange={() => setCorrectOption(i)}
+                      className="w-4 h-4 text-[#6D5DF6]"
+                    />
+                    <span className={correctOption === i ? "text-[#6D5DF6] font-medium" : "text-gray-500"}>Yes</span>
+                  </label>
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="radio"
+                      name={`correct-${i}`}
+                      checked={correctOption !== i}
+                      onChange={() => setCorrectOption(correctOption === i ? -1 : correctOption)}
+                      className="w-4 h-4 text-gray-400"
+                      disabled={correctOption === -1}
+                    />
+                    <span className={correctOption !== i && correctOption !== -1 ? "text-red-500 font-medium" : "text-gray-400"}>No</span>
+                  </label>
+                </div>
               </div>
             ))}
           </div>
@@ -107,11 +209,12 @@ export default function TeacherDashboard() {
           <div className="flex justify-end mt-10">
             <button
               onClick={createPoll}
+              disabled={isCreating}
               className="px-12 py-3 rounded-full text-white text-sm font-medium
               bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]
-              shadow-md hover:opacity-95 transition"
+              shadow-md hover:opacity-95 transition disabled:opacity-50"
             >
-              Ask Question
+              {isCreating ? "Creating..." : "Ask Question"}
             </button>
           </div>
         </div>
@@ -151,27 +254,51 @@ export default function TeacherDashboard() {
                 const votes = poll.results[index]?.votes || 0;
                 const percent =
                   totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100);
+                
+                // Check if answer is revealed
+                const isAnswerRevealed = poll.correctOption !== undefined && poll.correctOption >= 0;
+                const isCorrect = isAnswerRevealed && poll.correctOption === index;
+                const isWrong = isAnswerRevealed && poll.correctOption !== index;
 
                 return (
                   <div
                     key={index}
-                    className="relative h-[44px] rounded-[8px] border border-[#D9D9E8] overflow-hidden"
+                    className={`relative h-[44px] rounded-[8px] border overflow-hidden ${
+                      isCorrect ? "border-green-500 bg-green-50" : 
+                      isWrong ? "border-red-200 bg-red-50" :
+                      "border-[#D9D9E8] bg-white"
+                    }`}
                   >
                     <div
-                      className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]"
+                      className={`absolute top-0 left-0 h-full transition-all duration-500 ${
+                        isAnswerRevealed 
+                          ? (isCorrect ? "bg-green-500" : "bg-red-300")
+                          : "bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]"
+                      }`}
                       style={{ width: `${percent}%` }}
                     />
 
                     <div className="relative flex items-center justify-between h-full px-4 text-[14px]">
                       <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 rounded-full bg-[#6D5DF6] text-white flex items-center justify-center text-[12px] font-medium">
+                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[12px] font-medium ${
+                          isCorrect ? "bg-green-500 text-white" :
+                          isWrong ? "bg-red-300 text-white" :
+                          "bg-[#6D5DF6] text-white"
+                        }`}>
                           {index + 1}
                         </div>
 
-                        <span className="font-medium">{opt}</span>
+                        <span className={`font-medium ${
+                          isCorrect ? "text-green-700" : 
+                          isWrong ? "text-red-700" : ""
+                        }`}>{opt}</span>
                       </div>
 
-                      <div className="bg-white border border-[#6D5DF6] text-[#6D5DF6] px-3 py-[2px] rounded-[6px] text-[12px] font-semibold">
+                      <div className={`px-3 py-[2px] rounded-[6px] text-[12px] font-semibold ${
+                        isCorrect ? "bg-green-500 text-white" :
+                        isWrong ? "bg-red-300 text-white" :
+                        "bg-white border border-[#6D5DF6] text-[#6D5DF6]"
+                      }`}>
                         {percent}%
                       </div>
                     </div>
@@ -181,9 +308,18 @@ export default function TeacherDashboard() {
             </div>
           </div>
 
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-6 gap-4">
             <button
-              onClick={() => setPoll(null)}
+              onClick={async () => {
+                if (poll?._id) {
+                  try {
+                    await axios.put(`http://localhost:5000/api/poll/${poll._id}/complete`);
+                  } catch (err) {
+                    console.error("Failed to complete poll:", err);
+                  }
+                }
+                setPoll(null);
+              }}
               className="px-6 py-3 rounded-full text-white font-medium bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF] shadow-md hover:opacity-90 transition"
             >
               + Ask a new question
