@@ -191,6 +191,8 @@ exports.vote = async (req, res) => {
   }
 };
 
+// HTTP endpoint for students to register themselves (works without sockets)
+
 exports.kick = async (req, res) => {
   try {
     await ensureDbConnection();

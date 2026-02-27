@@ -51,11 +51,18 @@ class PollService {
   }
 
   async vote(data) {
+    console.log("Vote service called with:", data);
 
     const poll = await Poll.findById(data.pollId);
+    console.log("Found poll:", poll);
 
-    if (!poll || poll.status !== "active")
-      throw new Error("Poll not active");
+    if (!poll) {
+      throw new Error("Poll not found");
+    }
+    
+    if (poll.status !== "active") {
+      throw new Error(`Poll not active - status is: ${poll.status}`);
+    }
 
     const elapsed = (Date.now() - poll.startTime) / 1000;
     if (elapsed > poll.duration)
