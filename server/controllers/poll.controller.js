@@ -67,3 +67,41 @@ exports.checkKicked = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+exports.vote = async (req, res) => {
+  try {
+    const { pollId, studentName, optionIndex } = req.body;
+    const poll = await service.vote(pollId, studentName, optionIndex);
+    // Emit socket event for real-time updates
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("vote_update", poll);
+    }
+    res.json(poll);
+  } catch (e) {
+    res.status(400).json({ error: e.message });
+  }
+};
+
+exports.kick = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const participant = await Participant.findOne({ name });
+    if (participant) {
+      participant.isKicked = true;
+      await participant.save();
+      
+      // Emit socket event
+      const io = req.app.get("io");
+      if (io) {
+        io.emit("kicked", name);
+      }
+      
+      res.json({ success: true });
+    } else {
+      res.status(404).json({ error: "Participant not found" });
+    }
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
