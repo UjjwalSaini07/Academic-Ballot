@@ -116,6 +116,38 @@ exports.getParticipants = async (req, res) => {
     const participants = await Participant.find({ isActive: true });
     res.json(participants.map(p => ({ id: p.socketId, name: p.name })));
   } catch (e) {
+    console.error("getParticipants error:", e);
+    res.status(500).json({ error: e.message });
+  }
+};
+
+// HTTP endpoint for students to register themselves (works without sockets)
+exports.registerParticipant = async (req, res) => {
+  try {
+    await ensureDbConnection();
+    const { name } = req.body;
+    
+    if (!name) {
+      return res.status(400).json({ error: "Name is required" });
+    }
+    
+    // Check if already registered
+    let participant = await Participant.findOne({ name, isActive: true });
+    
+    if (!participant) {
+      participant = await Participant.create({
+        name,
+        socketId: `http_${Date.now()}`,
+        isActive: true,
+        isKicked: false
+      });
+    } else if (participant.isKicked) {
+      return res.status(403).json({ error: "You have been kicked out" });
+    }
+    
+    res.json({ success: true, participant: { id: participant.socketId, name: participant.name } });
+  } catch (e) {
+    console.error("registerParticipant error:", e);
     res.status(500).json({ error: e.message });
   }
 };

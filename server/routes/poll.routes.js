@@ -9,6 +9,7 @@ router.get("/check-kicked", controller.checkKicked);
 router.post("/", controller.create);
 router.post("/vote", controller.vote);
 router.post("/kick", controller.kick);
+router.post("/register", controller.registerParticipant);
 router.put("/:id/complete", controller.complete);
 router.put("/:id/reveal", controller.revealAnswer);
 
