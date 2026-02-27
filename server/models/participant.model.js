@@ -1,0 +1,9 @@
+const mongoose = require("mongoose");
+
+const participantSchema = new mongoose.Schema({
+  name: String,
+  socketId: String,
+  isActive: { type: Boolean, default: true }
+}, { timestamps: true });
+
+module.exports = mongoose.model("Participant", participantSchema);

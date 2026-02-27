@@ -31,7 +31,8 @@ export default function TeacherDashboard() {
   // Fetch participants
   const fetchParticipants = useCallback(async () => {
     try {
-      // Participants are fetched via socket, but we can also poll as fallback
+      const res = await axios.get("http://localhost:5000/api/poll/participants");
+      setParticipants(res.data);
     } catch (err) {
       console.error("Failed to fetch participants:", err);
     }
@@ -40,9 +41,13 @@ export default function TeacherDashboard() {
   // Initial fetch and periodic polling as fallback
   useEffect(() => {
     fetchPoll();
-    const pollInterval = setInterval(fetchPoll, 3000);
+    fetchParticipants();
+    const pollInterval = setInterval(() => {
+      fetchPoll();
+      fetchParticipants();
+    }, 3000);
     return () => clearInterval(pollInterval);
-  }, [fetchPoll]);
+  }, [fetchPoll, fetchParticipants]);
 
   useEffect(() => {
     if (!socket) return;

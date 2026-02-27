@@ -1,4 +1,5 @@
 const service = require("../services/poll.service");
+const Participant = require("../models/participant.model");
 
 exports.getActive = async (req, res) => {
   res.json(await service.getActive());
@@ -45,5 +46,14 @@ exports.revealAnswer = async (req, res) => {
     res.json(poll);
   } catch (e) {
     res.status(400).json({ error: e.message });
+  }
+};
+
+exports.getParticipants = async (req, res) => {
+  try {
+    const participants = await Participant.find({ isActive: true });
+    res.json(participants.map(p => ({ id: p.socketId, name: p.name })));
+  } catch (e) {
+    res.status(500).json({ error: e.message });
   }
 };
