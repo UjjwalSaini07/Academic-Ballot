@@ -168,7 +168,9 @@ exports.vote = async (req, res) => {
   try {
     await ensureDbConnection();
     
+    console.log("=== VOTE REQUEST ===");
     console.log("Vote request received:", req.body);
+    console.log("Poll ID:", req.body.pollId);
     
     const { pollId, studentName, optionIndex } = req.body;
     
@@ -184,6 +186,7 @@ exports.vote = async (req, res) => {
       io.emit("vote_update", poll);
     }
     
+    console.log("Vote successful!");
     res.json(poll);
   } catch (e) {
     console.error("Vote error:", e);
