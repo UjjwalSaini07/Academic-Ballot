@@ -33,28 +33,18 @@ exports.create = async (req, res) => {
   try {
     await ensureDbConnection();
     
-    // Debug: Log raw body and headers
-    console.log("Request headers:", req.headers);
-    console.log("Request body type:", typeof req.body);
-    console.log("Request body:", JSON.stringify(req.body));
-    
-    // Also check if body is in a different location (query params, etc)
-    console.log("Request query:", req.query);
-    
     if (!req.body) {
-      return res.status(400).json({ error: "Request body is missing", received: typeof req.body });
+      return res.status(400).json({ error: "Request body is missing" });
     }
     
     const { question, options, duration, correctOption } = req.body;
     
-    console.log("Destructured - question:", question, "options:", options);
-    
     if (!question) {
-      return res.status(400).json({ error: "Question is required", receivedQuestion: question });
+      return res.status(400).json({ error: "Question is required" });
     }
     
     if (!options || !Array.isArray(options)) {
-      return res.status(400).json({ error: "Options must be an array", receivedOptions: options });
+      return res.status(400).json({ error: "Options must be an array" });
     }
     
     if (options.length < 2) {
@@ -68,16 +58,16 @@ exports.create = async (req, res) => {
       correctOption
     };
     
-    console.log("Poll data to create:", pollData);
     const poll = await service.createPoll(pollData);
+    
     // Emit socket event after successful creation
     const io = req.app.get("io");
     if (io) {
       io.emit("poll_created", poll);
     }
+    
     res.status(201).json(poll);
   } catch (e) {
-    console.error("Poll creation error:", e);
     res.status(400).json({ error: e.message });
   }
 };
@@ -114,10 +104,8 @@ exports.getParticipants = async (req, res) => {
   try {
     await ensureDbConnection();
     const participants = await Participant.find({ isActive: true });
-    console.log("Get participants:", participants);
     res.json(participants.map(p => ({ id: p.socketId, name: p.name })));
   } catch (e) {
-    console.error("getParticipants error:", e);
     res.status(500).json({ error: e.message });
   }
 };
@@ -168,17 +156,13 @@ exports.vote = async (req, res) => {
   try {
     await ensureDbConnection();
     
-    console.log("=== VOTE REQUEST ===");
-    console.log("Vote request received:", req.body);
-    console.log("Poll ID:", req.body.pollId);
-    
     const { pollId, studentName, optionIndex } = req.body;
     
     if (!pollId || !studentName || optionIndex === undefined) {
       return res.status(400).json({ error: "Missing required fields: pollId, studentName, optionIndex" });
     }
     
-    const poll = await service.vote(pollId, studentName, optionIndex);
+    const poll = await service.vote({ pollId, studentName, optionIndex });
     
     // Emit socket event for real-time updates
     const io = req.app.get("io");
@@ -186,10 +170,8 @@ exports.vote = async (req, res) => {
       io.emit("vote_update", poll);
     }
     
-    console.log("Vote successful!");
     res.json(poll);
   } catch (e) {
-    console.error("Vote error:", e);
     res.status(400).json({ error: e.message });
   }
 };
@@ -200,9 +182,6 @@ exports.kick = async (req, res) => {
   try {
     await ensureDbConnection();
     const { name } = req.body;
-    
-    console.log("Kick request for:", name);
-    console.log("All active participants:", await Participant.find({ isActive: true }));
     
     const participant = await Participant.findOne({ name, isActive: true });
     
@@ -218,11 +197,9 @@ exports.kick = async (req, res) => {
       
       res.json({ success: true });
     } else {
-      console.log("Participant not found:", name);
       res.status(404).json({ error: "Participant not found" });
     }
   } catch (e) {
-    console.error("Kick error:", e);
     res.status(500).json({ error: e.message });
   }
 };

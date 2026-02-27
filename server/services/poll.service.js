@@ -5,8 +5,6 @@ const Vote = require("../models/vote.moel");
 class PollService {
 
   async createPoll(data) {
-    console.log("createPoll called with:", data);
-    
     if (!data || !data.options) {
       throw new Error("Invalid poll data: options are required");
     }
@@ -20,8 +18,7 @@ class PollService {
     }
     
     // Complete any existing active poll first
-    const result = await Poll.updateMany({ status: "active" }, { status: "completed" });
-    console.log("Completed existing polls:", result);
+    await Poll.updateMany({ status: "active" }, { status: "completed" });
 
     const results = data.options.map((_, i) => ({
       optionIndex: i,
@@ -30,14 +27,13 @@ class PollService {
 
     const poll = await Poll.create({
       ...data,
-      status: "active", // Explicitly set status
+      status: "active",
       startTime: Date.now(),
       correctOption: data.correctOption !== undefined ? data.correctOption : -1,
       showAnswer: false,
       results
     });
 
-    console.log("Created new poll:", poll);
     return poll;
   }
 
@@ -52,48 +48,30 @@ class PollService {
   }
 
   async vote(data) {
-    console.log("=== VOTE SERVICE ===");
-    console.log("Input data:", data);
-    console.log("Poll ID type:", typeof data.pollId);
-    console.log("Poll ID:", data.pollId);
-
-    // Try to find by different methods
-    let poll;
-    try {
-      // Try with mongoose findById (it handles string conversion)
-      poll = await Poll.findById(data.pollId);
-      console.log("findById result:", poll);
-    } catch (e) {
-      console.log("findById error:", e.message);
-    }
+    // Use the pollId directly - mongoose handles string to ObjectId conversion
+    const poll = await Poll.findById(data.pollId);
     
     if (!poll) {
-      // Try with explicit ObjectId
-      try {
-        const mongoose = require("mongoose");
-        const ObjectId = mongoose.Types.ObjectId;
-        const objectId = new ObjectId(data.pollId);
-        poll = await Poll.findById(objectId);
-        console.log("Explicit ObjectId result:", poll);
-      } catch (e) {
-        console.log("ObjectId error:", e.message);
+      // Try querying by string ID directly
+      const polls = await Poll.find({ _id: data.pollId });
+      if (polls.length > 0) {
+        return await this._processVote(polls[0], data);
       }
-    }
-
-    if (!poll) {
-      // Try finding all polls to see what's in DB
-      const allPolls = await Poll.find({});
-      console.log("All polls in DB:", allPolls.map(p => ({ id: p._id, question: p.question, status: p.status })));
       throw new Error("Poll not found");
     }
     
+    return await this._processVote(poll, data);
+  }
+
+  async _processVote(poll, data) {
     if (poll.status !== "active") {
-      throw new Error(`Poll not active - status is: ${poll.status}`);
+      throw new Error("Poll not active");
     }
 
     const elapsed = (Date.now() - poll.startTime) / 1000;
-    if (elapsed > poll.duration)
+    if (elapsed > poll.duration) {
       throw new Error("Time expired");
+    }
 
     await Vote.create(data);
 
