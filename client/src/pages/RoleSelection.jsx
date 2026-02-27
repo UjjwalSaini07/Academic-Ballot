@@ -9,7 +9,7 @@ export default function RoleSelection() {
     <div className="min-h-screen bg-[#F5F6F8] flex items-center justify-center">
       <div className="text-center">
 
-        <div className="inline-block px-4 py-1 text-xs font-medium bg-[#6D5DF6] text-white rounded-full mb-6">
+        <div className="inline-block px-4 py-1 text-xs font-medium bg-gradient-to-r from-[#7565D9] to-[#4D0ACD] text-white rounded-full mb-6">
           ✦ Intervue Poll
         </div>
 
@@ -58,7 +58,7 @@ export default function RoleSelection() {
         <button
           onClick={() => navigate(`/${role}`)}
           className="px-16 py-3 text-white text-sm font-medium rounded-full
-          bg-gradient-to-r from-[#7C6CF4] to-[#5B4DE3] shadow-md hover:opacity-95"
+          bg-gradient-to-r from-[#8F64E1] to-[#1D68BD] shadow-md hover:opacity-95"
         >
           Continue
         </button>

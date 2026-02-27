@@ -14,7 +14,7 @@ export default function StudentOnboarding() {
   return (
     <div className="min-h-screen bg-[#F5F6F8] flex flex-col items-center justify-center px-4">
       <div className="mb-6">
-        <span className="px-4 py-1 text-xs font-medium rounded-full text-white bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]">
+        <span className="px-4 py-1 text-xs font-medium rounded-full text-white bg-gradient-to-r from-[#7565D9] to-[#4D0ACD]">
           ✦ Intervue Poll
         </span>
       </div>
@@ -47,7 +47,7 @@ export default function StudentOnboarding() {
       <button
         onClick={handleContinue}
         className="mt-10 px-12 py-3 rounded-full text-white text-sm font-medium
-        bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]
+        bg-gradient-to-r from-[#8F64E1] to-[#1D68BD]
         shadow-md hover:opacity-95 transition"
       >
         Continue

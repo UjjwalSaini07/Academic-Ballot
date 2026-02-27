@@ -130,7 +130,7 @@ export default function TeacherDashboard() {
         <div className="w-full max-w-[900px] mx-auto pt-7 pb-20 px-4">
           <div
             className="inline-block px-4 py-1 text-xs font-medium 
-    bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF] 
+    bg-gradient-to-r from-[#7565D9] to-[#4D0ACD] 
     text-white rounded-full mb-6"
           >
             ✦ Intervue Poll
@@ -144,7 +144,7 @@ export default function TeacherDashboard() {
           </p>
 
           <div className="flex justify-between items-center mb-4">
-            <label className="text-[15px] font-medium">
+            <label className="text-[15px] font-bold">
               Enter your question
             </label>
 
@@ -185,7 +185,7 @@ export default function TeacherDashboard() {
                 {options.map((opt, i) => (
                   <div key={i} className="flex items-center gap-4">
                     <div
-                      className="w-6 h-6 rounded-full bg-[#6D5DF6] text-white 
+                      className="w-6 h-6 rounded-full bg-gradient-to-r from-[#8F64E1] to-[#4E377B] text-white 
               flex items-center justify-center text-xs font-medium"
                     >
                       {i + 1}
@@ -226,7 +226,7 @@ export default function TeacherDashboard() {
                         name={`correct-${i}`}
                         checked={correctOption === i}
                         onChange={() => setCorrectOption(i)}
-                        className="accent-[#6D5DF6]"
+                        className="accent-[#8F64E1]"
                       />
                       <span className="text-sm">Yes</span>
                     </label>

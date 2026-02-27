@@ -124,7 +124,7 @@ export default function StudentDashboard() {
         <div className="mb-6">
           <span
             className="px-4 py-1 text-xs font-medium rounded-full text-white 
-          bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]"
+          bg-gradient-to-r from-[#7565D9] to-[#4D0ACD]"
           >
             ✦ Intervue Poll
           </span>
@@ -155,14 +155,14 @@ export default function StudentDashboard() {
         <div className="mb-6">
           <span
             className="px-4 py-1 text-xs font-medium rounded-full text-white 
-            bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]"
+            bg-gradient-to-r from-[#7565D9] to-[#4D0ACD]"
           >
             ✦ Intervue Poll
           </span>
         </div>
 
         <div className="mb-6">
-          <div className="w-14 h-14 border-4 border-[#6D5DF6] border-t-transparent rounded-full animate-spin"></div>
+          <div className="w-16 h-16 border-6 border-[#500ECE] border-t-transparent rounded-full animate-spin"></div>
         </div>
 
         <h2 className="text-[22px] font-semibold text-center">
