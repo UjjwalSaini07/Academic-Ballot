@@ -114,6 +114,7 @@ exports.getParticipants = async (req, res) => {
   try {
     await ensureDbConnection();
     const participants = await Participant.find({ isActive: true });
+    console.log("Get participants:", participants);
     res.json(participants.map(p => ({ id: p.socketId, name: p.name })));
   } catch (e) {
     console.error("getParticipants error:", e);
@@ -194,7 +195,12 @@ exports.kick = async (req, res) => {
   try {
     await ensureDbConnection();
     const { name } = req.body;
-    const participant = await Participant.findOne({ name });
+    
+    console.log("Kick request for:", name);
+    console.log("All active participants:", await Participant.find({ isActive: true }));
+    
+    const participant = await Participant.findOne({ name, isActive: true });
+    
     if (participant) {
       participant.isKicked = true;
       await participant.save();
@@ -207,9 +213,11 @@ exports.kick = async (req, res) => {
       
       res.json({ success: true });
     } else {
+      console.log("Participant not found:", name);
       res.status(404).json({ error: "Participant not found" });
     }
   } catch (e) {
+    console.error("Kick error:", e);
     res.status(500).json({ error: e.message });
   }
 };

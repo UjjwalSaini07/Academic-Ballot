@@ -19,7 +19,8 @@ class PollService {
     }
     
     // Complete any existing active poll first
-    await Poll.updateMany({ status: "active" }, { status: "completed" });
+    const result = await Poll.updateMany({ status: "active" }, { status: "completed" });
+    console.log("Completed existing polls:", result);
 
     const results = data.options.map((_, i) => ({
       optionIndex: i,
@@ -28,12 +29,14 @@ class PollService {
 
     const poll = await Poll.create({
       ...data,
+      status: "active", // Explicitly set status
       startTime: Date.now(),
       correctOption: data.correctOption !== undefined ? data.correctOption : -1,
       showAnswer: false,
       results
     });
 
+    console.log("Created new poll:", poll);
     return poll;
   }
 
