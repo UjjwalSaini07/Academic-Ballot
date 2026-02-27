@@ -32,26 +32,44 @@ exports.history = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     await ensureDbConnection();
-    console.log("Creating poll - request body:", JSON.stringify(req.body));
+    
+    // Debug: Log raw body and headers
+    console.log("Request headers:", req.headers);
+    console.log("Request body type:", typeof req.body);
+    console.log("Request body:", JSON.stringify(req.body));
+    
+    // Also check if body is in a different location (query params, etc)
+    console.log("Request query:", req.query);
     
     if (!req.body) {
-      return res.status(400).json({ error: "Request body is missing" });
+      return res.status(400).json({ error: "Request body is missing", received: typeof req.body });
     }
     
-    if (!req.body.question) {
-      return res.status(400).json({ error: "Question is required" });
+    const { question, options, duration, correctOption } = req.body;
+    
+    console.log("Destructured - question:", question, "options:", options);
+    
+    if (!question) {
+      return res.status(400).json({ error: "Question is required", receivedQuestion: question });
     }
     
-    if (!req.body.options || !Array.isArray(req.body.options)) {
-      return res.status(400).json({ error: "Options must be an array" });
+    if (!options || !Array.isArray(options)) {
+      return res.status(400).json({ error: "Options must be an array", receivedOptions: options });
     }
     
-    if (req.body.options.length < 2) {
+    if (options.length < 2) {
       return res.status(400).json({ error: "At least 2 options are required" });
     }
     
-    console.log("Poll data validated, creating poll...");
-    const poll = await service.createPoll(req.body);
+    const pollData = {
+      question,
+      options,
+      duration,
+      correctOption
+    };
+    
+    console.log("Poll data to create:", pollData);
+    const poll = await service.createPoll(pollData);
     // Emit socket event after successful creation
     const io = req.app.get("io");
     if (io) {
