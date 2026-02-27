@@ -57,3 +57,13 @@ exports.getParticipants = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+exports.checkKicked = async (req, res) => {
+  try {
+    const { name } = req.query;
+    const participant = await Participant.findOne({ name, isKicked: true });
+    res.json({ isKicked: !!participant });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};

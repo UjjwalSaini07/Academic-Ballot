@@ -29,6 +29,13 @@ module.exports = (io) => {
 
     socket.on("join", async (name) => {
       try {
+        // Check if participant was kicked
+        const kickedParticipant = await Participant.findOne({ name, isKicked: true });
+        if (kickedParticipant) {
+          socket.emit("kicked");
+          return;
+        }
+        
         // Check if participant already exists
         let participant = await Participant.findOne({ name, isActive: true });
         
@@ -76,8 +83,8 @@ module.exports = (io) => {
       try {
         io.to(id).emit("kicked");
         
-        // Mark participant as inactive in database
-        await Participant.findOneAndUpdate({ socketId: id }, { isActive: false });
+        // Mark participant as kicked in database
+        await Participant.findOneAndUpdate({ socketId: id }, { isKicked: true, isActive: false });
         
         // Emit updated list
         const dbParticipants = await Participant.find({ isActive: true });
