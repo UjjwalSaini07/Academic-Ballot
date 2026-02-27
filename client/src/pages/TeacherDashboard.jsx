@@ -294,32 +294,34 @@ export default function TeacherDashboard() {
                 const percent =
                   totalVotes === 0 ? 0 : Math.round((votes / totalVotes) * 100);
 
-                // Check if answer is revealed
-                const isAnswerRevealed =
-                  poll.correctOption !== undefined && poll.correctOption >= 0;
-                const isCorrect =
-                  isAnswerRevealed && poll.correctOption === index;
-                const isWrong =
-                  isAnswerRevealed && poll.correctOption !== index;
+                // Check if answer is revealed (teacher always sees the correct answer they selected)
+                const showAnswer = poll.showAnswer === true;
+                const hasCorrectSet = poll.correctOption !== undefined && poll.correctOption >= 0;
+                const isCorrect = hasCorrectSet && poll.correctOption === index;
+                const isWrong = hasCorrectSet && poll.correctOption !== index;
 
                 return (
                   <div
                     key={index}
                     className={`relative h-[44px] rounded-[8px] border overflow-hidden ${
-                      isCorrect
+                      showAnswer && isCorrect
                         ? "border-green-500 bg-green-50"
-                        : isWrong
+                        : showAnswer && isWrong
                           ? "border-red-200 bg-red-50"
-                          : "border-[#D9D9E8] bg-white"
+                          : hasCorrectSet
+                            ? "border-green-500 bg-green-50"
+                            : "border-[#D9D9E8] bg-white"
                     }`}
                   >
                     <div
                       className={`absolute top-0 left-0 h-full transition-all duration-500 ${
-                        isAnswerRevealed
+                        showAnswer
                           ? isCorrect
                             ? "bg-green-500"
                             : "bg-red-300"
-                          : "bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]"
+                          : hasCorrectSet
+                            ? "bg-green-500"
+                            : "bg-gradient-to-r from-[#6D5DF6] to-[#8E7CFF]"
                       }`}
                       style={{ width: `${percent}%` }}
                     />
@@ -370,6 +372,28 @@ export default function TeacherDashboard() {
           </div>
 
           <div className="flex justify-center mt-6 gap-4">
+            {(!poll.showAnswer) && poll.correctOption >= 0 && (
+              <button
+                onClick={async () => {
+                  if (poll?._id && poll.correctOption >= 0) {
+                    try {
+                      const res = await axios.put(
+                        `http://localhost:5000/api/poll/${poll._id}/reveal`,
+                        { correctOption: poll.correctOption }
+                      );
+                      setPoll(res.data);
+                    } catch (err) {
+                      console.error("Failed to reveal answer:", err);
+                    }
+                  } else {
+                    alert("Please select the correct answer when creating the poll");
+                  }
+                }}
+                className="px-6 py-3 rounded-full text-white font-medium bg-green-500 hover:bg-green-600 shadow-md transition"
+              >
+                Reveal Answer
+              </button>
+            )}
             <button
               onClick={async () => {
                 if (poll?._id) {
