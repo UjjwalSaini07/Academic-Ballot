@@ -16,6 +16,7 @@ class PollService {
       ...data,
       startTime: Date.now(),
       correctOption: data.correctOption !== undefined ? data.correctOption : -1,
+      showAnswer: false,
       results
     });
 
@@ -25,7 +26,7 @@ class PollService {
   async revealAnswer(id, correctOption) {
     const poll = await Poll.findByIdAndUpdate(
       id,
-      { correctOption },
+      { showAnswer: true, correctOption },
       { new: true }
     );
     if (!poll) throw new Error("Poll not found");

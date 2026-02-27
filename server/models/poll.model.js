@@ -6,7 +6,8 @@ const pollSchema = new mongoose.Schema({
   duration: Number,
   startTime: Number,
   status: { type: String, default: "active" },
-  correctOption: { type: Number, default: -1 }, // -1 means not revealed yet
+  correctOption: { type: Number, default: -1 }, // -1 means not set
+  showAnswer: { type: Boolean, default: false }, // Only show answer when teacher reveals
   results: [
     {
       optionIndex: Number,
