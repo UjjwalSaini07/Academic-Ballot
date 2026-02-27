@@ -1,18 +1,27 @@
 const mongoose = require("mongoose");
 const service = require("../services/poll.service");
 const Participant = require("../models/participant.model");
+const connectDB = require("../config/db");
 
 // Helper to ensure database is connected
 const ensureDbConnection = async () => {
   if (mongoose.connection.readyState !== 1) {
-    const connectDB = require("../config/db");
-    await connectDB();
+    try {
+      await connectDB();
+    } catch (err) {
+      console.error("DB Connection failed:", err.message);
+    }
   }
 };
 
 exports.getActive = async (req, res) => {
   await ensureDbConnection();
-  res.json(await service.getActive());
+  try {
+    res.json(await service.getActive());
+  } catch (e) {
+    console.error("getActive error:", e);
+    res.status(500).json({ error: e.message });
+  }
 };
 
 exports.history = async (req, res) => {
@@ -23,7 +32,25 @@ exports.history = async (req, res) => {
 exports.create = async (req, res) => {
   try {
     await ensureDbConnection();
-    console.log("Creating poll with data:", req.body);
+    console.log("Creating poll - request body:", JSON.stringify(req.body));
+    
+    if (!req.body) {
+      return res.status(400).json({ error: "Request body is missing" });
+    }
+    
+    if (!req.body.question) {
+      return res.status(400).json({ error: "Question is required" });
+    }
+    
+    if (!req.body.options || !Array.isArray(req.body.options)) {
+      return res.status(400).json({ error: "Options must be an array" });
+    }
+    
+    if (req.body.options.length < 2) {
+      return res.status(400).json({ error: "At least 2 options are required" });
+    }
+    
+    console.log("Poll data validated, creating poll...");
     const poll = await service.createPoll(req.body);
     // Emit socket event after successful creation
     const io = req.app.get("io");

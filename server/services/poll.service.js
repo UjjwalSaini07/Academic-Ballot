@@ -4,6 +4,20 @@ const Vote = require("../models/vote.moel");
 class PollService {
 
   async createPoll(data) {
+    console.log("createPoll called with:", data);
+    
+    if (!data || !data.options) {
+      throw new Error("Invalid poll data: options are required");
+    }
+    
+    if (!Array.isArray(data.options)) {
+      throw new Error("Invalid poll data: options must be an array");
+    }
+    
+    if (data.options.length < 2) {
+      throw new Error("Invalid poll data: at least 2 options are required");
+    }
+    
     // Complete any existing active poll first
     await Poll.updateMany({ status: "active" }, { status: "completed" });
 
