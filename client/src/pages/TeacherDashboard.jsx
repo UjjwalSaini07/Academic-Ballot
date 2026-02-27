@@ -212,9 +212,9 @@ export default function TeacherDashboard() {
             <div>
               <h3 className="font-semibold text-[15px] mb-6">Is it Correct?</h3>
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {options.map((_, i) => (
-                  <div key={i} className="flex items-center gap-6">
+                  <div key={i} className="flex items-center gap-6 h-[42px]">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <input
                         type="radio"
