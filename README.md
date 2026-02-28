@@ -1,23 +1,29 @@
 # 🎓 Academic Ballot
 
-A real-time academic polling and voting system designed for educational institutions. Teachers can create polls, manage participants, and view live results, while students can join sessions and vote on questions in real-time.
+**Academic-Ballot is a resilient real-time classroom polling platform built on the MERN stack, designed for seamless teacher–student interaction. It features synchronized server-authoritative timers, secure single-vote enforcement, late-join recovery, and persistent state management to ensure reliability even after refresh or reconnection. Teachers can create polls and monitor live analytics, while students participate instantly, making academic decision-making interactive, scalable, and dependable.**
 
-![License](https://img.shields.io/badge/license-MIT-green)
+[![Github License](https://img.shields.io/github/license/UjjwalSaini07/Academic-Ballot)](https://github.com/UjjwalSaini07/Academic-Ballot/blob/main/LICENSE)
+[![Info](https://img.shields.io/badge/Project-Info-blue?style=flat&logo=data:image/svg%2bxml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iaXNvLTg4NTktMSI/Pg0KPCEtLSBHZW5lcmF0b3I6IEFkb2JlIElsbHVzdHJhdG9yIDE5LjAuMCwgU1ZHIEV4cG9ydCBQbHVnLUluIC4gU1ZHIFZlcnNpb246IDYuMDAgQnVpbGQgMCkgIC0tPg0KPHN2ZyB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgNTEyIDUxMiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTEyIDUxMjsiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPHBhdGggc3R5bGU9ImZpbGw6IzBBNEVBRjsiIGQ9Ik0yNTYsNTEyYy02OC4zOCwwLTEzMi42NjctMjYuNjI5LTE4MS4wMi03NC45OEMyNi42MjksMzg4LjY2NywwLDMyNC4zOCwwLDI1Ng0KCVMyNi42MjksMTIzLjMzMyw3NC45OCw3NC45OEMxMjMuMzMzLDI2LjYyOSwxODcuNjIsMCwyNTYsMHMxMzIuNjY3LDI2LjYyOSwxODEuMDIsNzQuOThDNDg1LjM3MSwxMjMuMzMzLDUxMiwxODcuNjIsNTEyLDI1Ng0KCXMtMjYuNjI5LDEzMi42NjctNzQuOTgsMTgxLjAyQzM4OC42NjcsNDg1LjM3MSwzMjQuMzgsNTEyLDI1Niw1MTJ6Ii8+DQo8cGF0aCBzdHlsZT0iZmlsbDojMDYzRThCOyIgZD0iTTQzNy4wMiw3NC45OEMzODguNjY3LDI2LjYyOSwzMjQuMzgsMCwyNTYsMHY1MTJjNjguMzgsMCwxMzIuNjY3LTI2LjYyOSwxODEuMDItNzQuOTgNCglDNDg1LjM3MSwzODguNjY3LDUxMiwzMjQuMzgsNTEyLDI1NlM0ODUuMzcxLDEyMy4zMzMsNDM3LjAyLDc0Ljk4eiIvPg0KPHBhdGggc3R5bGU9ImZpbGw6I0ZGRkZGRjsiIGQ9Ik0yNTYsMTg1Yy0zMC4zMjcsMC01NS0yNC42NzMtNTUtNTVzMjQuNjczLTU1LDU1LTU1czU1LDI0LjY3Myw1NSw1NVMyODYuMzI3LDE4NSwyNTYsMTg1eiBNMzAxLDM5NQ0KCVYyMTVIMTkxdjMwaDMwdjE1MGgtMzB2MzBoMTQwdi0zMEgzMDF6Ii8+DQo8Zz4NCgk8cGF0aCBzdHlsZT0iZmlsbDojQ0NFRkZGOyIgZD0iTTI1NiwxODVjMzAuMzI3LDAsNTUtMjQuNjczLDU1LTU1cy0yNC42NzMtNTUtNTUtNTVWMTg1eiIvPg0KCTxwb2x5Z29uIHN0eWxlPSJmaWxsOiNDQ0VGRkY7IiBwb2ludHM9IjMwMSwzOTUgMzAxLDIxNSAyNTYsMjE1IDI1Niw0MjUgMzMxLDQyNSAzMzEsMzk1IAkiLz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjxnPg0KPC9nPg0KPGc+DQo8L2c+DQo8Zz4NCjwvZz4NCjwvc3ZnPg0K)](https://github.com/UjjwalSaini07/Academic-Ballot/blob/main/README.md)
+[![Generic badge](https://img.shields.io/badge/Owner-@Ujjwal-<COLOR>.svg)](https://github.com/UjjwalSaini07/Academic-Ballot)
+[![Generic Repo Size badge](https://img.shields.io/github/repo-size/UjjwalSaini07/Academic-Ballot?style=flat&logo=github)](https://github.com/UjjwalSaini07/Academic-Ballot)
+[![GitHub stars](https://img.shields.io/github/stars/UjjwalSaini07/Academic-Ballot?style=social&label=Star&maxAge=2592100)](https://github.com/UjjwalSaini07/Academic-Ballot/stargazers)
+[![Github Release](https://img.shields.io/github/v/release/UjjwalSaini07/Academic-Ballot)](https://github.com/UjjwalSaini07/Academic-Ballot)
 
+<img width="1024" height="572" alt="image" src="https://github.com/user-attachments/assets/80542143-b721-462b-9a8a-9f2fb0e6db10" />
 
-## 📋 Table of Contents
+## 📚 Table of Contents
 
-- [✨ Features](#-features)
-- [🛠️ Tech Stack](#️-tech-stack)
-- [📁 Project Structure](#-project-structure)
-- [🚀 Getting Started](#-getting-started)
-- [🔧 Environment Variables](#-environment-variables)
-- [📡 API Endpoints](#-api-endpoints)
-- [🔌 Socket Events](#-socket-events)
-- [📱 Application Screens](#-application-screens)
-- [🏗️ Architecture](#️-architecture)
-- [📄 License](#-license)
-
+- [✨ Key Features](#-key-features)  
+- [🛠️ Technology Stack](#️-technology-stack)  
+- [🏗️ System Architecture](#️-system-architecture)  
+- [📂 Project Structure](#-project-structure)  
+- [🚀 Getting Started](#-getting-started)  
+- [⚙️ Environment Configuration](#️-environment-configuration)  
+- [📡 REST API Endpoints](#-rest-api-endpoints)  
+- [🔌 Real-Time Socket Events](#-real-time-socket-events)  
+- [🖥️ Application Screens](#️-application-screens)  
+- [🔐 Security & Data Integrity](#-security--data-integrity)  
+- [📄 License](#-license)  
 ## ✨ Features
 
 ### For Teachers
@@ -45,29 +51,32 @@ A real-time academic polling and voting system designed for educational institut
 
 ## Stack
 
-### Frontend
-| Technology | Purpose |
-|------------|---------|
-| [React 18](https://react.dev/) | UI Framework |
-| [Vite](https://vitejs.dev/) | Build Tool |
-| [Tailwind CSS](https://tailwindcss.com/) | Styling |
-| [React Router](https://reactrouter.com/) | Routing |
-| [Socket.io Client](https://socket.io/) | Real-time Communication |
-| [Axios](https://axios-http.com/) | HTTP Client |
+### 🎨 Frontend Technology Stack
 
-### Backend
-| Technology | Purpose |
-|------------|---------|
-| [Node.js](https://nodejs.org/) | Runtime |
-| [Express](https://expressjs.com/) | Web Framework |
-| [Socket.io](https://socket.io/) | WebSocket Server |
-| [MongoDB](https://www.mongodb.com/) | Database |
-| [Mongoose](https://mongoosejs.com/) | ODM |
+The frontend of **Academic-Ballot** is built using a modern, performance-driven ecosystem designed for scalability, real-time responsiveness, and clean UI architecture.
 
-### Deployment
-| Platform | Service |
-|----------|---------|
-| [Vercel](https://vercel.com/) | Frontend & Backend Hosting |
+- **React 18** – A powerful component-based library for building dynamic and interactive user interfaces  
+- **Vite** – A fast, next-generation build tool ensuring optimized development and production performance  
+- **Tailwind CSS** – A utility-first CSS framework for crafting clean, consistent, and modern designs  
+- **React Router** – Declarative routing for smooth navigation across multiple application views  
+- **Socket.io Client** – Enables real-time, bidirectional communication between client and server  
+- **Axios** – A promise-based HTTP client for structured and secure API interactions  
+
+### ⚙️ Backend Technology Stack
+
+The backend of **Academic-Ballot** is engineered for reliability, scalability, and real-time performance, forming the core of the system’s resilient architecture.
+
+- **Node.js** – A high-performance runtime environment powering the server-side logic  
+- **Express.js** – A minimalist and flexible web framework for building structured REST APIs  
+- **Socket.io** – Enables real-time, event-driven communication with synchronized state updates  
+- **MongoDB** – A scalable NoSQL database ensuring persistent and reliable data storage  
+- **Mongoose** – An elegant ODM for schema modeling, validation, and data integrity management  
+
+### 🚀 Deployment
+
+**Academic-Ballot** is deployed on a modern cloud platform to ensure high availability, scalability, and seamless performance in production.
+
+- **Vercel** – Hosts both frontend and backend services with optimized build pipelines, automatic deployments, and global edge distribution for fast and reliable access  
 
 
 ## 📁 Project Structure
@@ -142,26 +151,26 @@ Ensure you have the following installed:
 
 1. **Clone the Repository**
    ```bash
-    git clone https://github.com/UjjwalSaini07/Academic-Ballot.git
+        git clone https://github.com/UjjwalSaini07/Academic-Ballot.git
    ```
    ```bash
-   cd Academic-Ballot
+       cd Academic-Ballot
    ```
 
 2. **Install Backend Dependencies**
    ```bash
-   cd server
-   npm install
-   # or
-   pnpm install
+       cd server
+   ```
+   ```bash
+       pnpm install
    ```
 
 3. **Install Frontend Dependencies**
    ```bash
-   cd ../client
-   npm install
-   # or
-   pnpm install
+       cd ../client
+   ```
+   ```
+       pnpm install
    ```
 
 ### Running the Application
@@ -170,56 +179,68 @@ Ensure you have the following installed:
 
 1. **Start MongoDB** (if using local instance)
    ```bash
-   mongod
+       mongod
    ```
 
 2. **Start Backend Server**
    ```bash
-   cd server
-   npm run dev
-   # Server runs on http://localhost:5000
+       cd server
    ```
+   ```bash
+       pnpm dev
+   ```
+   - **Server runs on http://localhost:5000**
 
 3. **Start Frontend Development Server**
    ```bash
-   cd client
-   npm run dev
-   # Client runs on http://localhost:3000
+       cd client
    ```
+   ```bash
+       pnpm dev
+   ```
+   - **Client runs on http://localhost:3000**
 
 #### Production Mode
-
 1. **Build Frontend**
    ```bash
-   cd client
-   npm run build
+       cd client
+       pnpm run build
    ```
 
 2. **Start Production Server**
    ```bash
-   cd server
-   npm start
+       cd server
+       pnpm start
    ```
-
 
 ## 🔧 Environment Variables
 
-Create a `.env` file in the `server/` directory:
+- Create a `.env` file in the `server/` directory:
 
 ```env
-# Server Configuration
-PORT=5000
-NODE_ENV=development
+    # Server Configuration
+    PORT=5000
+    NODE_ENV=development
+    
+    # MongoDB Connection
+    # Option 1: Local MongoDB
+    MONGODB_URI=mongodb://localhost:27017/academic-ballot
+    
+    # Option 2: MongoDB Atlas
+    MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/academic-ballot
+    
+    # Frontend API URL (for CORS)
+    CLIENT_URL=http://localhost:3000
+```
 
-# MongoDB Connection
-# Option 1: Local MongoDB
-MONGODB_URI=mongodb://localhost:27017/academic-ballot
+- Create a `.env` file in the `client/` directory:
 
-# Option 2: MongoDB Atlas
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/academic-ballot
-
-# Frontend API URL (for CORS)
-CLIENT_URL=http://localhost:3000
+```env
+    # Development (use this when running server locally with npm run dev)
+    # VITE_API_URL=http://localhost:5000
+    
+    # Production (use this when deploying to Vercel)
+    VITE_API_URL=https://academic-ballot-backend.vercel.app
 ```
 
 
@@ -227,7 +248,7 @@ CLIENT_URL=http://localhost:3000
 
 ### Base URL
 ```
-http://localhost:5000/api
+    http://localhost:5000/api
 ```
 
 ### Poll Endpoints
@@ -285,7 +306,7 @@ http://localhost:5000/api
 
 ```
 ┌─────────────────┐
-│   Home Page    │  →  Role Selection
+│   Home Page     │  →  Role Selection
 └────────┬────────┘
          │
     ┌────┴────┐
@@ -300,8 +321,8 @@ http://localhost:5000/api
 │ Teacher   │ │ Student            │
 │ Dashboard │ │ Onboarding         │
 └───────────┘ └─────────┬──────────┘
-                         │
-                         ▼
+                        │
+                        ▼
                   ┌────────────┐
                   │  Student   │
                   │  Dashboard │
@@ -332,7 +353,7 @@ http://localhost:5000/api
        │                   │
        ▼                   ▼
 ┌─────────────┐     ┌─────────────┐
-│  Socket.io  │◀───▶│  Socket.io  │
+│  Socket.io  │◀───▶│  Socket.io │
 │  (Client)   │     │  (Server)   │
 └─────────────┘     └─────────────┘
 ```
