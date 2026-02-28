@@ -120,19 +120,27 @@ exports.registerParticipant = async (req, res) => {
       return res.status(400).json({ error: "Name is required" });
     }
     
-    // Check if already registered
+    // Check if already registered AND not kicked
     let participant = await Participant.findOne({ name, isActive: true });
     
-    if (!participant) {
-      participant = await Participant.create({
-        name,
-        socketId: `http_${Date.now()}`,
-        isActive: true,
-        isKicked: false
-      });
-    } else if (participant.isKicked) {
+    if (participant) {
+      // Already active - return success
+      return res.json({ success: true, participant: { id: participant.socketId, name: participant.name } });
+    }
+    
+    // Check if previously kicked
+    const kickedParticipant = await Participant.findOne({ name, isKicked: true });
+    if (kickedParticipant) {
       return res.status(403).json({ error: "You have been kicked out" });
     }
+    
+    // Create new participant
+    participant = await Participant.create({
+      name,
+      socketId: `http_${Date.now()}`,
+      isActive: true,
+      isKicked: false
+    });
     
     res.json({ success: true, participant: { id: participant.socketId, name: participant.name } });
   } catch (e) {
@@ -183,16 +191,23 @@ exports.kick = async (req, res) => {
     await ensureDbConnection();
     const { name } = req.body;
     
-    const participant = await Participant.findOne({ name, isActive: true });
+    // Find participant by name (can be active or inactive)
+    const participant = await Participant.findOne({ name });
     
     if (participant) {
       participant.isKicked = true;
+      participant.isActive = false;
       await participant.save();
       
-      // Emit socket event
+      // Emit socket event to the specific participant
       const io = req.app.get("io");
       if (io) {
-        io.emit("kicked", name);
+        io.to(participant.socketId).emit("kicked");
+        
+        // Emit updated participants list to all clients
+        const dbParticipants = await Participant.find({ isActive: true });
+        const participants = dbParticipants.map(p => ({ id: p.socketId, name: p.name }));
+        io.emit("participants", participants);
       }
       
       res.json({ success: true });
