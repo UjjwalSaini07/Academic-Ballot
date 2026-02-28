@@ -1,0 +1,36 @@
+{
+  "version": "1.0.0",
+  "name": "academic-ballot",
+  "description": "Academic voting and polling system for educational institutions",
+  "author": {
+    "name": "Ujjwal Saini",
+    "email": "ujjwalsaini0007+ballot@gmail.com",
+    "portfolio": "https://www.ujjwalsaini.dev/",
+    "github": "https://github.com/UjjwalSaini07"
+  },
+  "releaseDate": "2026-02-28",
+  "changelog": [
+    "Initial release"
+  ],
+  "components": {
+    "client": {
+      "path": "client/",
+      "version": "1.0.0",
+      "framework": "React + Vite",
+      "config": "client/vercel.json"
+    },
+    "server": {
+      "path": "server/",
+      "version": "1.0.0",
+      "framework": "Node.js + Express",
+      "config": "server/vercel.json"
+    }
+  },
+  "features": [
+    "Role-based access (Teacher/Student)",
+    "Real-time polling with WebSocket",
+    "Vote tracking and results",
+    "Poll history",
+    "Participant management"
+  ]
+}
