@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const service = require("../services/poll.service");
 const Participant = require("../models/participant.model");
+const Poll = require("../models/poll.model");
+const Vote = require("../models/vote.moel.js");
 const connectDB = require("../config/db");
 
 // Helper to ensure database is connected
@@ -215,6 +217,109 @@ exports.kick = async (req, res) => {
       res.status(404).json({ error: "Participant not found" });
     }
   } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+};
+
+// Admin: Get analytics data
+exports.getAnalytics = async (req, res) => {
+  try {
+    await ensureDbConnection();
+    
+    const totalPolls = await Poll.countDocuments();
+    const totalVotes = await Vote.countDocuments();
+    const totalParticipants = await Participant.countDocuments();
+    const activeParticipants = await Participant.countDocuments({ isActive: true });
+    const kickedParticipants = await Participant.countDocuments({ isKicked: true });
+    
+    // Get polls by date (last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    
+    const pollsByDay = await Poll.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sevenDaysAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    
+    // Get votes by day
+    const votesByDay = await Vote.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: sevenDaysAgo }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" }
+          },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { _id: 1 } }
+    ]);
+    
+    // Get recent polls
+    const recentPolls = await Poll.find()
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .select("question options results createdAt");
+    
+    res.json({
+      totalPolls,
+      totalVotes,
+      totalParticipants,
+      activeParticipants,
+      kickedParticipants,
+      pollsByDay,
+      votesByDay,
+      recentPolls
+    });
+  } catch (e) {
+    console.error("Analytics error:", e);
+    res.status(500).json({ error: e.message });
+  }
+};
+
+// Admin: Flush database
+exports.flushDatabase = async (req, res) => {
+  try {
+    await ensureDbConnection();
+    const { passkey } = req.body;
+    
+    // Verify passkey
+    if (passkey !== "ujjwal07") {
+      return res.status(403).json({ error: "Invalid passkey" });
+    }
+    
+    // Delete all documents
+    const pollsResult = await Poll.deleteMany({});
+    const votesResult = await Vote.deleteMany({});
+    const participantsResult = await Participant.deleteMany({});
+    
+    res.json({
+      success: true,
+      message: "Database flushed successfully",
+      deleted: {
+        polls: pollsResult.deletedCount,
+        votes: votesResult.deletedCount,
+        participants: participantsResult.deletedCount
+      }
+    });
+  } catch (e) {
+    console.error("Flush error:", e);
     res.status(500).json({ error: e.message });
   }
 };
